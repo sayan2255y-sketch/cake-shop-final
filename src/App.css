@@ -1444,3 +1444,174 @@ button {
     gap: 20px;
   }
 }
+/* ============================= */
+/* HOME HERO CAKE SLIDER */
+/* ============================= */
+
+.home-cake-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 14px 14px 42px;
+  border: 1px solid rgba(200, 155, 91, 0.55);
+  border-radius: 22px;
+  background: linear-gradient(145deg, #fffaf0, #f1dfc7);
+  box-shadow: 0 18px 45px rgba(55, 31, 19, 0.16);
+}
+
+.home-cake-carousel-window {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 15px;
+  background: #ead9c7;
+}
+
+.home-cake-carousel-track {
+  display: flex;
+  width: 100%;
+  transition: transform 700ms cubic-bezier(.22, .75, .25, 1);
+  will-change: transform;
+}
+
+.home-cake-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.home-cake-slide-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(320px, 42vw, 510px);
+  overflow: hidden;
+  color: #fff;
+}
+
+.home-cake-slide-link img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.home-cake-slide-link:hover img {
+  transform: scale(1.045);
+}
+
+.home-cake-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 34px 20px 17px;
+  color: #fff;
+  font-size: 15px;
+  background: linear-gradient(transparent, rgba(28, 15, 10, 0.82));
+}
+
+.home-cake-caption strong {
+  flex: 0 0 auto;
+  color: #ffe0a4;
+  font-size: 18px;
+}
+
+.home-cake-arrow {
+  position: absolute;
+  top: 45%;
+  z-index: 2;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  color: #2b1710;
+  background: rgba(255, 250, 240, 0.92);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.home-cake-arrow:hover {
+  transform: scale(1.08);
+  background: #fff;
+}
+
+.home-cake-prev {
+  left: 25px;
+}
+
+.home-cake-next {
+  right: 25px;
+}
+
+.home-cake-dots {
+  position: absolute;
+  right: 0;
+  bottom: 19px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+}
+
+.home-cake-dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c9b69d;
+  cursor: pointer;
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.home-cake-dots button.active {
+  width: 25px;
+  border-radius: 10px;
+  background: #8b552e;
+}
+
+.home-cake-hint {
+  position: absolute;
+  right: 0;
+  bottom: -27px;
+  left: 0;
+  margin: 0;
+  color: #806b58;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .home-cake-carousel {
+    margin-top: 32px;
+  }
+
+  .home-cake-slide-link {
+    height: clamp(280px, 85vw, 420px);
+  }
+
+  .home-cake-prev {
+    left: 22px;
+  }
+
+  .home-cake-next {
+    right: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-cake-carousel-track,
+  .home-cake-slide-link img {
+    transition: none;
+  }
+}

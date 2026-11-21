@@ -1,4 +1,5 @@
- import { useState } from "react";
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Checkout({
@@ -6,133 +7,121 @@ function Checkout({
   setCart,
   setOrders
 }) {
-
   const navigate = useNavigate();
 
-
   const [customer, setCustomer] = useState({
-
     name: "",
     email: "",
     phone: "",
     address: ""
-
   });
 
+  const [loading, setLoading] = useState(false);
 
   const total = cart.reduce(
-
-    (sum, item) =>
-      sum + item.price * item.quantity,
-
+    (sum, item) => sum + item.price * item.quantity,
     0
-
   );
 
-
   const handleChange = (event) => {
-
     const { name, value } = event.target;
 
-
-    setCustomer({
-
-      ...customer,
-
+    setCustomer((previousCustomer) => ({
+      ...previousCustomer,
       [name]: value
-
-    });
-
+    }));
   };
 
-
-  const placeOrder = () => {
-
-
+  const placeOrder = async () => {
     if (cart.length === 0) {
-
       alert("Your cart is empty!");
-
       return;
-
     }
-
 
     if (
-      !customer.name ||
-      !customer.email ||
-      !customer.phone ||
-      !customer.address
+      !customer.name.trim() ||
+      !customer.email.trim() ||
+      !customer.phone.trim() ||
+      !customer.address.trim()
     ) {
-
-      alert(
-        "Please fill all customer details."
-      );
-
+      alert("Please fill all customer details.");
       return;
-
     }
 
+    if (loading) return;
 
-    const newOrder = {
+    setLoading(true);
 
-      id:
-        "EC" +
-        Date.now()
-          .toString()
-          .slice(-6),
+    try {
+      const response = await fetch(
+        "http://localhost:5000/email/confirm",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            customerName: customer.name.trim(),
+            customerEmail: customer.email.trim(),
+            phone: customer.phone.trim(),
+            address: customer.address.trim(),
+            items: cart.map((item) => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+        }
+      );
 
-      date:
-        new Date()
-          .toLocaleDateString(),
+      const result = await response.json();
 
-      customer: customer,
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Order could not be completed."
+        );
+      }
 
-      products: cart,
+      const newOrder = {
+        id: result.orderId,
+        date: new Date().toLocaleDateString(),
+        customer: { ...customer },
+        products: [...cart],
+        total: total,
+        status: "Order Placed"
+      };
 
-      total: total,
+      setOrders((previousOrders) => [
+        newOrder,
+        ...previousOrders
+      ]);
 
-      status: "Order Placed"
+      setCart([]);
 
-    };
+      alert(
+        "Order placed successfully! Confirmation emails sent."
+      );
 
+      navigate("/orders");
 
-    // Add new order
-    setOrders((previousOrders) => [
+    } catch (error) {
+      console.error("Order Error:", error);
 
-      newOrder,
-      ...previousOrders
+      alert(
+        "Order failed: " + error.message
+      );
 
-    ]);
-
-
-    // Empty cart
-    setCart([]);
-
-
-    alert(
-      "Order placed successfully!"
-    );
-
-
-    navigate("/orders");
-
+    } finally {
+      setLoading(false);
+    }
   };
 
-
   if (cart.length === 0) {
-
     return (
-
       <div className="checkout-page">
-
         <div className="container py-5">
-
           <div className="checkout-box text-center">
-
-            <h2>
-              Your cart is empty
-            </h2>
+            <h2>Your cart is empty</h2>
 
             <p>
               Please add products before checkout.
@@ -140,52 +129,34 @@ function Checkout({
 
             <button
               className="cart-btn"
-              onClick={() =>
-                navigate("/catalog")
-              }
+              onClick={() => navigate("/catalog")}
             >
               Go to Catalog
             </button>
-
           </div>
-
         </div>
-
       </div>
-
     );
-
   }
 
-
   return (
-
     <div className="checkout-page">
-
       <div className="container py-5">
-
 
         <h1 className="checkout-title">
           Checkout
         </h1>
 
-
         <div className="row g-4">
-
 
           {/* Customer Details */}
 
           <div className="col-md-7">
-
             <div className="checkout-box">
 
-              <h3>
-                Customer Details
-              </h3>
-
+              <h3>Customer Details</h3>
 
               <div className="mb-3">
-
                 <label className="form-label">
                   Full Name
                 </label>
@@ -198,12 +169,9 @@ function Checkout({
                   className="form-control"
                   placeholder="Enter your name"
                 />
-
               </div>
 
-
               <div className="mb-3">
-
                 <label className="form-label">
                   Email
                 </label>
@@ -216,12 +184,9 @@ function Checkout({
                   className="form-control"
                   placeholder="Enter your email"
                 />
-
               </div>
 
-
               <div className="mb-3">
-
                 <label className="form-label">
                   Phone Number
                 </label>
@@ -234,12 +199,9 @@ function Checkout({
                   className="form-control"
                   placeholder="Enter your phone number"
                 />
-
               </div>
 
-
               <div className="mb-3">
-
                 <label className="form-label">
                   Delivery Address
                 </label>
@@ -251,97 +213,65 @@ function Checkout({
                   className="form-control"
                   rows="4"
                   placeholder="Enter your delivery address"
-                ></textarea>
-
+                />
               </div>
 
             </div>
-
           </div>
-
 
           {/* Order Summary */}
 
           <div className="col-md-5">
-
             <div className="checkout-box">
 
-              <h3>
-                Order Summary
-              </h3>
-
+              <h3>Order Summary</h3>
 
               {cart.map((item) => (
-
                 <div
                   className="checkout-product"
                   key={item.id}
                 >
-
                   <img
                     src={item.image}
                     alt={item.name}
                   />
 
-
                   <div>
-
-                    <h5>
-                      {item.name}
-                    </h5>
+                    <h5>{item.name}</h5>
 
                     <p>
-                      Quantity:{" "}
-                      {item.quantity}
+                      Quantity: {item.quantity}
                     </p>
 
                     <p>
-                      $
-                      {item.price *
-                        item.quantity}
+                      ${item.price * item.quantity}
                     </p>
-
                   </div>
-
                 </div>
-
               ))}
-
 
               <hr />
 
-
               <div className="checkout-total">
-
-                <strong>
-                  Total:
-                </strong>
-
-                <strong>
-                  ${total}
-                </strong>
-
+                <strong>Total:</strong>
+                <strong>${total}</strong>
               </div>
 
-
               <button
-  type="button"
-  className="place-order-btn"
-  onClick={placeOrder}
->
-  Submit Order
-</button>
+                type="button"
+                className="place-order-btn"
+                onClick={placeOrder}
+                disabled={loading}
+              >
+                {loading ? "Processing Order..." : "Submit Order"}
+              </button>
 
             </div>
-
           </div>
 
         </div>
-
       </div>
-
     </div>
-
   );
 }
 
